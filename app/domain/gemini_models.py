@@ -53,7 +53,6 @@ class GeminiRequest(BaseModel):
     safetySettings: Optional[List[SafetySetting]] = None
     generationConfig: Optional[GenerationConfig] = None
     systemInstruction: Optional[SystemInstruction] = None
-    systemInstructions: Optional[SystemInstruction] = None
 
     class Config:
         extra = Extra.allow

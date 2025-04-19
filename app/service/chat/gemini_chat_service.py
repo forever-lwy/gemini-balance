@@ -100,16 +100,17 @@ def _build_payload(model: str, request: GeminiRequest) -> Dict[str, Any]:
     # 以原始请求体为基础
     payload = dict(request_dict)
 
+    # logger.info(f"Payload before processing: {payload}")
+
     # 覆盖/补充特殊项
     payload["tools"] = _build_tools(model, request_dict)
     payload["safetySettings"] = _get_safety_settings(model)
+
 
     # 针对图片模型，补充 responseModalities
     if model.endswith("-image") or model.endswith("-image-generation"):
         if "systemInstruction" in payload:
             payload.pop("systemInstruction")
-        if "systemInstructions" in payload:
-            payload.pop("systemInstructions")
         if "generationConfig" not in payload or not isinstance(payload["generationConfig"], dict):
             payload["generationConfig"] = {}
         payload["generationConfig"]["responseModalities"] = ["Text", "Image"]
