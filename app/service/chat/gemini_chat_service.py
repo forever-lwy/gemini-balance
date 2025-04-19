@@ -90,23 +90,28 @@ def _get_safety_settings(model: str) -> List[Dict[str, str]]:
 
 
 def _build_payload(model: str, request: GeminiRequest) -> Dict[str, Any]:
-    """构建请求payload"""
+    """构建请求payload（仅覆盖特殊项，其余透明传递）"""
     request_dict = request.model_dump()
     if request.generationConfig:
         if request.generationConfig.maxOutputTokens is None:
             # 如果未指定最大输出长度，则不传递该字段，解决截断的问题
-            request_dict["generationConfig"].pop("maxOutputTokens")
-    
-    payload = {
-        "contents": request_dict.get("contents", []),
-        "tools": _build_tools(model, request_dict),
-        "safetySettings": _get_safety_settings(model),
-        "generationConfig": request_dict.get("generationConfig", {}),
-        "systemInstruction": request_dict.get("systemInstruction", ""),
-    }
+            request_dict.get("generationConfig", {}).pop("maxOutputTokens", None)
 
+    # 以原始请求体为基础
+    payload = dict(request_dict)
+
+    # 覆盖/补充特殊项
+    payload["tools"] = _build_tools(model, request_dict)
+    payload["safetySettings"] = _get_safety_settings(model)
+
+    # 针对图片模型，补充 responseModalities
     if model.endswith("-image") or model.endswith("-image-generation"):
-        payload.pop("systemInstruction")
+        if "systemInstruction" in payload:
+            payload.pop("systemInstruction")
+        if "systemInstructions" in payload:
+            payload.pop("systemInstructions")
+        if "generationConfig" not in payload or not isinstance(payload["generationConfig"], dict):
+            payload["generationConfig"] = {}
         payload["generationConfig"]["responseModalities"] = ["Text", "Image"]
     return payload
 
