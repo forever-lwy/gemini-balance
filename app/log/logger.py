@@ -35,7 +35,7 @@ class ColoredFormatter(logging.Formatter):
 
 # 日志格式
 FORMATTER = ColoredFormatter(
-    "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
+    "%(asctime)s | %(name)-15s | %(levelname)-8s | [%(filename)-20s:%(lineno)-4d] | %(message)s"
 )
 
 # 日志级别映射
@@ -113,8 +113,6 @@ class Logger:
                 # 可选：记录级别变更日志，但注意避免在日志模块内部产生过多日志
                 # print(f"Updated log level for logger '{logger_name}' to {log_level_str.upper()}")
                 updated_count += 1
-        # if updated_count > 0:
-            # print(f"Updated log level for {updated_count} loggers to {log_level_str.upper()}.")
 
 
 # 预定义的loggers
