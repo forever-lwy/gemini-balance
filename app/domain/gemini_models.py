@@ -4,6 +4,7 @@ from pydantic import BaseModel, Extra, Field
 # 导入 to_snake 用于生成别名
 from pydantic.alias_generators import to_snake
 
+
 from app.core.constants import DEFAULT_TEMPERATURE, DEFAULT_TOP_K, DEFAULT_TOP_P
 
 
@@ -15,9 +16,25 @@ def _to_snake(name: str) -> str:
     return to_snake(name)
 
 class SafetySetting(BaseModel):
-    # 字段名保持 camelCase
-    category: Optional[Literal["HARM_CATEGORY_HATE_SPEECH", "HARM_CATEGORY_DANGEROUS_CONTENT", "HARM_CATEGORY_HARASSMENT", "HARM_CATEGORY_SEXUALLY_EXPLICIT", "HARM_CATEGORY_CIVIC_INTEGRITY"]] = None
-    threshold: Optional[Literal["HARM_BLOCK_THRESHOLD_UNSPECIFIED", "BLOCK_LOW_AND_ABOVE", "BLOCK_MEDIUM_AND_ABOVE", "BLOCK_ONLY_HIGH", "BLOCK_NONE", "OFF"]] = None
+    category: Optional[
+        Literal[
+            "HARM_CATEGORY_HATE_SPEECH",
+            "HARM_CATEGORY_DANGEROUS_CONTENT",
+            "HARM_CATEGORY_HARASSMENT",
+            "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            "HARM_CATEGORY_CIVIC_INTEGRITY",
+        ]
+    ] = None
+    threshold: Optional[
+        Literal[
+            "HARM_BLOCK_THRESHOLD_UNSPECIFIED",
+            "BLOCK_LOW_AND_ABOVE",
+            "BLOCK_MEDIUM_AND_ABOVE",
+            "BLOCK_ONLY_HIGH",
+            "BLOCK_NONE",
+            "OFF",
+        ]
+    ] = None
 
     class Config:
         extra = Extra.allow
@@ -51,7 +68,7 @@ class GenerationConfig(BaseModel):
 
 class SystemInstruction(BaseModel):
     role: str = "system"
-    parts: List[Dict[str, Any]]
+    parts: List[Dict[str, Any]] | Dict[str, Any]
 
     class Config:
         extra = Extra.allow
@@ -76,14 +93,18 @@ class GeminiContent(BaseModel):
 class GeminiRequest(BaseModel):
     contents: List[GeminiContent] = []
     tools: Optional[Union[List[Dict[str, Any]], Dict[str, Any]]] = []
-    # 字段名保持 camelCase，并添加 snake_case 别名
-    safetySettings: Optional[List[SafetySetting]] = Field(default=None, alias="safety_settings")
-    generationConfig: Optional[GenerationConfig] = Field(default=None, alias="generation_config")
-    systemInstruction: Optional[SystemInstruction] = Field(default=None, alias="system_instruction")
+    safetySettings: Optional[List[SafetySetting]] = Field(
+        default=None, alias="safety_settings"
+    )
+    generationConfig: Optional[GenerationConfig] = Field(
+        default=None, alias="generation_config"
+    )
+    systemInstruction: Optional[SystemInstruction] = Field(
+        default=None, alias="system_instruction"
+    )
 
     class Config:
         extra = Extra.allow
-        # 允许通过字段名或别名填充
         populate_by_name = True
 
 
